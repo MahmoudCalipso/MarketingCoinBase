@@ -32,9 +32,7 @@ namespace MarketingCoinBase.Models
         [Required]
         public DateTime? createdAt { get; set; }
         [Column]
-        [Required]
         [ForeignKey("userRef")]
-        public long userRef { get; set; }
         public virtual Users user { get; set; }
         [Column]
         [Required]

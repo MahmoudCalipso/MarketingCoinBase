@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketingCoinBase.Migrations
 {
     [DbContext(typeof(CoinBaseDB))]
-    [Migration("20220517012435_InitialMigration")]
+    [Migration("20220517015014_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -111,10 +111,7 @@ namespace MarketingCoinBase.Migrations
                     b.Property<bool>("status")
                         .HasColumnType("bit");
 
-                    b.Property<long?>("userID1")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("userRef")
+                    b.Property<long?>("userRef")
                         .HasColumnType("bigint");
 
                     b.Property<string>("username")
@@ -129,7 +126,7 @@ namespace MarketingCoinBase.Migrations
 
                     b.HasIndex("roleID");
 
-                    b.HasIndex("userID1");
+                    b.HasIndex("userRef");
 
                     b.ToTable("Users");
                 });
@@ -156,7 +153,7 @@ namespace MarketingCoinBase.Migrations
 
                     b.HasOne("MarketingCoinBase.Models.Users", "user")
                         .WithMany()
-                        .HasForeignKey("userID1");
+                        .HasForeignKey("userRef");
 
                     b.Navigation("balance");
 

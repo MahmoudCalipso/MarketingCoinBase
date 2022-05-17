@@ -61,8 +61,7 @@ namespace MarketingCoinBase.Migrations
                     password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false),
                     createdAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    userRef = table.Column<long>(type: "bigint", nullable: false),
-                   
+                    userRef = table.Column<long>(type: "bigint", nullable: true),
                     balanceID = table.Column<long>(type: "bigint", nullable: false),
                     roleID = table.Column<long>(type: "bigint", nullable: false),
                     commissionID = table.Column<long>(type: "bigint", nullable: false)

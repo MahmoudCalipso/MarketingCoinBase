@@ -108,8 +108,8 @@ namespace MarketingCoinBase.Migrations
 
                     b.Property<bool>("status")
                         .HasColumnType("bit");
-              
-                    b.Property<long>("userRef")
+
+                    b.Property<long?>("userRef")
                         .HasColumnType("bigint");
 
                     b.Property<string>("username")
@@ -124,7 +124,7 @@ namespace MarketingCoinBase.Migrations
 
                     b.HasIndex("roleID");
 
-                    b.HasIndex("userID1");
+                    b.HasIndex("userRef");
 
                     b.ToTable("Users");
                 });
@@ -151,7 +151,7 @@ namespace MarketingCoinBase.Migrations
 
                     b.HasOne("MarketingCoinBase.Models.Users", "user")
                         .WithMany()
-                        .HasForeignKey("userID1");
+                        .HasForeignKey("userRef");
 
                     b.Navigation("balance");
 
