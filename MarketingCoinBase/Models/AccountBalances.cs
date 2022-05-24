@@ -14,6 +14,6 @@ namespace MarketingCoinBase.Models
         public double soldeBalance { get; set; }
         [Required]
         public double soldeInvest { get; set; } 
-        public virtual ICollection<Users> users { get; set; }
+        public virtual UserPartners userPartners { get; set; }
     }
 }

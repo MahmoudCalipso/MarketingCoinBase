@@ -20,5 +20,9 @@ namespace MarketingCoinBase.Models
         public virtual DbSet<Commissions> Commissions { get; set; }
         public virtual DbSet<Roles> Roles { get; set; }
         public virtual DbSet<AccountBalances> AccountBalances { get; set; }
+        public virtual DbSet<Partners> Partners { get; set; }
+        public virtual DbSet<UserPartners> UserPartners { get; set; }
+        public virtual DbSet<ServeProds> ServeProds { get; set; }
+
     }
 }

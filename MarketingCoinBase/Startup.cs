@@ -1,4 +1,9 @@
+using FluentValidation.AspNetCore;
+using MarketingCoinBase.IRepositories;
+using MarketingCoinBase.IServices;
 using MarketingCoinBase.Models;
+using MarketingCoinBase.Repositories;
+using MarketingCoinBase.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,11 +37,16 @@ namespace MarketingCoinBase
             {
                 options.UseSqlServer(Configuration.GetConnectionString("CoinWalletDB"));
             });
-            services.AddControllers();
+            services.AddControllers().AddFluentValidation().AddNewtonsoftJson(
+               opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MarketingCoinBase", Version = "v1" });
             });
+            
+           // services.AddScoped<IPartnersRepository, PartnersRepository>();
+            services.AddScoped<IPartnerServices, PartnerServices>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

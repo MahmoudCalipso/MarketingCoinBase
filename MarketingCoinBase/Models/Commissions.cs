@@ -15,6 +15,8 @@ namespace MarketingCoinBase.Models
         [Required]
         public int datePeriod { get; set; }
 
+        public virtual UserPartners userPartners { get; set; }
+
 
     }
 }

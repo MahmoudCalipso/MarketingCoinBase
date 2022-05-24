@@ -34,21 +34,13 @@ namespace MarketingCoinBase.Models
         [Column]
         [ForeignKey("userRef")]
         public virtual Users user { get; set; }
-        [Column]
-        [Required]
-        [ForeignKey("balanceID")]
-        public long balanceID { get; set; }
-        public virtual AccountBalances balance { get; set; }
+      
         [Column]
         [Required]
         [ForeignKey("roleID")]
         public long roleID { get; set; }
         public virtual Roles role { get; set; }
-        [Column]
-        [Required]
-        [ForeignKey("commissionID")]
-        public long commissionID { get; set; }
-        public virtual Commissions commission { get; set; }
+
     }
 }
         

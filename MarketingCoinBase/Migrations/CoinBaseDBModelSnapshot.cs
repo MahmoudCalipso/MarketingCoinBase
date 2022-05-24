@@ -58,6 +58,33 @@ namespace MarketingCoinBase.Migrations
                     b.ToTable("Commissions");
                 });
 
+            modelBuilder.Entity("MarketingCoinBase.Models.Partners", b =>
+                {
+                    b.Property<long>("partnerID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("location")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("partnerName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("partnerID");
+
+                    b.ToTable("Partners");
+                });
+
             modelBuilder.Entity("MarketingCoinBase.Models.Roles", b =>
                 {
                     b.Property<long>("roleID")
@@ -74,9 +101,40 @@ namespace MarketingCoinBase.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("MarketingCoinBase.Models.Users", b =>
+            modelBuilder.Entity("MarketingCoinBase.Models.ServeProds", b =>
                 {
-                    b.Property<long>("userID")
+                    b.Property<long>("serveProdID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime?>("createdAt")
+                        .IsRequired()
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("partnerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("partnerspartnerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("price")
+                        .HasColumnType("float");
+
+                    b.Property<string>("typeOfService")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("serveProdID");
+
+                    b.HasIndex("partnerspartnerID");
+
+                    b.ToTable("ServeProds");
+                });
+
+            modelBuilder.Entity("MarketingCoinBase.Models.UserPartners", b =>
+                {
+                    b.Property<long>("userPartID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -86,6 +144,34 @@ namespace MarketingCoinBase.Migrations
 
                     b.Property<long>("commissionID")
                         .HasColumnType("bigint");
+
+                    b.Property<long>("partnerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("userID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("userPartID");
+
+                    b.HasIndex("balanceID")
+                        .IsUnique();
+
+                    b.HasIndex("commissionID")
+                        .IsUnique();
+
+                    b.HasIndex("partnerID");
+
+                    b.HasIndex("userID");
+
+                    b.ToTable("UserPartners");
+                });
+
+            modelBuilder.Entity("MarketingCoinBase.Models.Users", b =>
+                {
+                    b.Property<long>("userID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime?>("createdAt")
                         .IsRequired()
@@ -118,10 +204,6 @@ namespace MarketingCoinBase.Migrations
 
                     b.HasKey("userID");
 
-                    b.HasIndex("balanceID");
-
-                    b.HasIndex("commissionID");
-
                     b.HasIndex("roleID");
 
                     b.HasIndex("userRef");
@@ -129,20 +211,52 @@ namespace MarketingCoinBase.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("MarketingCoinBase.Models.Users", b =>
+            modelBuilder.Entity("MarketingCoinBase.Models.ServeProds", b =>
+                {
+                    b.HasOne("MarketingCoinBase.Models.Partners", "partners")
+                        .WithMany()
+                        .HasForeignKey("partnerspartnerID");
+
+                    b.Navigation("partners");
+                });
+
+            modelBuilder.Entity("MarketingCoinBase.Models.UserPartners", b =>
                 {
                     b.HasOne("MarketingCoinBase.Models.AccountBalances", "balance")
-                        .WithMany("users")
-                        .HasForeignKey("balanceID")
+                        .WithOne("userPartners")
+                        .HasForeignKey("MarketingCoinBase.Models.UserPartners", "balanceID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MarketingCoinBase.Models.Commissions", "commission")
-                        .WithMany()
-                        .HasForeignKey("commissionID")
+                        .WithOne("userPartners")
+                        .HasForeignKey("MarketingCoinBase.Models.UserPartners", "commissionID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MarketingCoinBase.Models.Partners", "partner")
+                        .WithMany()
+                        .HasForeignKey("partnerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MarketingCoinBase.Models.Users", "user")
+                        .WithMany()
+                        .HasForeignKey("userID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("balance");
+
+                    b.Navigation("commission");
+
+                    b.Navigation("partner");
+
+                    b.Navigation("user");
+                });
+
+            modelBuilder.Entity("MarketingCoinBase.Models.Users", b =>
+                {
                     b.HasOne("MarketingCoinBase.Models.Roles", "role")
                         .WithMany()
                         .HasForeignKey("roleID")
@@ -153,10 +267,6 @@ namespace MarketingCoinBase.Migrations
                         .WithMany()
                         .HasForeignKey("userRef");
 
-                    b.Navigation("balance");
-
-                    b.Navigation("commission");
-
                     b.Navigation("role");
 
                     b.Navigation("user");
@@ -164,7 +274,12 @@ namespace MarketingCoinBase.Migrations
 
             modelBuilder.Entity("MarketingCoinBase.Models.AccountBalances", b =>
                 {
-                    b.Navigation("users");
+                    b.Navigation("userPartners");
+                });
+
+            modelBuilder.Entity("MarketingCoinBase.Models.Commissions", b =>
+                {
+                    b.Navigation("userPartners");
                 });
 #pragma warning restore 612, 618
         }
