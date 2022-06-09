@@ -1,8 +1,8 @@
 ﻿using MarketingCoinBase.IRepositories;
 using MarketingCoinBase.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -31,8 +31,8 @@ namespace MarketingCoinBase.Repositories
 
         public async Task<List<T>> FindAsync(Expression<Func<T, bool>> expression)
         {
-            return expression != null ? await _context.Set<T>().AsQueryable().Where(expression).AsNoTracking().ToListAsync() :
-              await _context.Set<T>().AsQueryable().AsNoTracking().ToListAsync();
+            return expression != null ? await _context.Set<T>().AsQueryable().Where(expression).ToListAsync() :
+              await _context.Set<T>().AsQueryable().ToListAsync();
         }
 
         public async Task<List<T>> GetAllAsync()
@@ -59,6 +59,10 @@ namespace MarketingCoinBase.Repositories
         {
             return await _context.Set<T>().FirstOrDefaultAsync(expression);
         }
+
+        public void Update(T entity) => _context.Set<T>().Update(entity);
+
+        public void UpdateRange(IEnumerable<T> items) => _context.Set<T>().UpdateRange(items);
 
         public async Task<bool> SaveCompletedAsync()
         {

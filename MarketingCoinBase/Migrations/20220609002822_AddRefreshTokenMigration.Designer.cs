@@ -4,14 +4,16 @@ using MarketingCoinBase.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MarketingCoinBase.Migrations
 {
     [DbContext(typeof(CoinBaseDB))]
-    partial class CoinBaseDBModelSnapshot : ModelSnapshot
+    [Migration("20220609002822_AddRefreshTokenMigration")]
+    partial class AddRefreshTokenMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

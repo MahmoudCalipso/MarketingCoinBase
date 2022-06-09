@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace MarketingCoinBase.Models
 {
@@ -11,14 +13,17 @@ namespace MarketingCoinBase.Models
         public long userID { get; set; }
         [Column]
         [Required]
+        [Index(IsUnique = true )]
         public  string username { get; set; }
         [Column]
         [Required]
+        [Index(IsUnique = true)]
         [RegularExpression(@"((\+|00)216)?[0-9]{8}", ErrorMessage = "Characters are not allowed.")]
         public string phone { get; set; }
         [Column]
         [Required]
         [EmailAddress]
+        [Index(IsUnique = true)]
         public string email { get; set; }
         [Column]
         [Required]
@@ -41,6 +46,8 @@ namespace MarketingCoinBase.Models
         public long roleID { get; set; }
         public virtual Roles role { get; set; }
 
+        [JsonIgnore]
+        public List<RefreshToken> RefreshTokens { get; set; }
     }
 }
         
