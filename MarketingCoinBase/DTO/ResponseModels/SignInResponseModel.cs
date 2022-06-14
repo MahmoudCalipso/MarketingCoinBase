@@ -14,16 +14,16 @@ namespace MarketingCoinBase.DTO.ResponseModels
         public string token { get; set; }
         public DateTime expiredAt { get; set; } 
         
-        [JsonIgnore] // refresh token is returned in http only cookie
+      
         public string RefreshToken { get; set; }
-        public SignInResponseModel(Users user, string jwtToken, string refreshToken)
-        {
-            userId = user.userID;
-            username = user.username;
-            email = user.email;
-            token = jwtToken;
-            RefreshToken = refreshToken;
-        }
+        //public SignInResponseModel(Users user, string jwtToken, string refreshToken)
+        //{
+        //    userId = user.userID;
+        //    username = user.username;
+        //    email = user.email;
+        //    token = jwtToken;
+        //    RefreshToken = refreshToken;
+        //}
 
     }
 }

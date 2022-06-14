@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace MarketingCoinBase.Models
 {
-    [Owned]
+    
     public class RefreshToken
     {
         [Key]
@@ -20,5 +21,9 @@ namespace MarketingCoinBase.Models
         public string RevokedByIp { get; set; }
         public string ReplacedByToken { get; set; }
         public bool IsActive => Revoked == null && !IsExpired;
+
+        [ForeignKey("userID")]
+        public long userID { get; set; }
+        public virtual Users User { get; set; }
     }
 }

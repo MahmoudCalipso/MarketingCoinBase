@@ -32,18 +32,25 @@ namespace MarketingCoinBase.Services
             var user = await _context.UsersRepository.FindSingleAsync(x => x.email == model.email 
                                                                         && x.password == model.password);
             if (user == null) return null;
-            Console.WriteLine( "Authenticated User {0}", user.username);
-            var UserAuth = new Users();
-            UserAuth = user;
-            var jwtToken = GenerateJwtToken(UserAuth);
-            var refreshToken =  GenerateRefreshToken(ipAddress);
-
-            // save refresh token
-            user.RefreshTokens.Add(refreshToken);
-             _context.UsersRepository.Update(user);
-           await  _context.SaveCompletedAsync();
-
-            return new SignInResponseModel(user, jwtToken, refreshToken.Token);
+            var jwtToken = GenerateJwtToken(user, ipAddress);
+            var refreshToken =  GenerateRefreshToken();
+            RefreshToken refToken = new RefreshToken();
+            refToken.Token = refreshToken;
+            refToken.Created = DateTime.UtcNow;
+            refToken.Expires = DateTime.UtcNow.AddDays(Convert.ToInt32(_config["jwtTokenConfig:AccessTokenExpiration"]));
+            refToken.userID = user.userID;
+           // user.RefreshTokens.Add(refToken);
+            await _context.RefTokenRepository.AddAsync(refToken);
+            await  _context.SaveCompletedAsync();
+            return new SignInResponseModel()
+            {
+                userId = user.userID,
+                username = user.username,
+                email = user.email,
+                role = Convert.ToString(user.roleID),
+                token = jwtToken,
+                RefreshToken = GenerateRefreshToken()
+            };
 
         }
 
@@ -70,18 +77,28 @@ namespace MarketingCoinBase.Services
             if (!refreshToken.IsActive) return null;
 
             // replace old refresh token with a new one and save
-            var newRefreshToken = GenerateRefreshToken(ipAddress);
-            refreshToken.Revoked = DateTime.UtcNow;
-            refreshToken.RevokedByIp = ipAddress;
-            refreshToken.ReplacedByToken = newRefreshToken.Token;
-            user.RefreshTokens.Add(newRefreshToken);
-            _context.UsersRepository.Update(user);
+            var newRefreshToken = GenerateRefreshToken();
+            RefreshToken refToken = new RefreshToken();
+
+            refToken.Revoked = DateTime.UtcNow;
+            refToken.RevokedByIp = ipAddress;
+            refToken.ReplacedByToken = newRefreshToken;
+            refToken.userID = user.userID;
+             _context.RefTokenRepository.Update(refToken);
             await _context.SaveCompletedAsync();
 
             // generate new jwt
-            var jwtToken = GenerateJwtToken(user);
+            var jwtToken = GenerateJwtToken(user, ipAddress);
 
-            return new SignInResponseModel(user, jwtToken, newRefreshToken.Token);
+            return new SignInResponseModel()
+            {
+                userId = user.userID,
+                username = user.username,
+                email = user.email,
+                role = Convert.ToString(user.roleID),
+                token = jwtToken,
+                RefreshToken = GenerateRefreshToken()
+            };
         }
 
         public async Task<bool> RevokeToken(string token, string ipAddress)
@@ -95,47 +112,45 @@ namespace MarketingCoinBase.Services
 
             // return false if token is not active
             if (!refreshToken.IsActive) return false;
-
+            RefreshToken refToken = new RefreshToken();
             // revoke token and save
-            refreshToken.Revoked = DateTime.UtcNow;
-            refreshToken.RevokedByIp = ipAddress;
-            _context.UsersRepository.Update(user);
+            refToken.Revoked = DateTime.UtcNow;
+            refToken.RevokedByIp = ipAddress;
+            _context.RefTokenRepository.Update(refToken);
             await _context.SaveCompletedAsync();
 
             return true;
         }
-        private string GenerateJwtToken(Users user)
+        private string GenerateJwtToken(Users user, string ipAdress)
         {
-            Console.WriteLine("User Email {0}", user.email);
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config["jwtTokenConfig:Secret"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            var claims = new List<Claim>
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim("UserID", user.userID.ToString()),
-                    new Claim(ClaimTypes.Name, user.username.ToString()),
-                    new Claim(ClaimTypes.Role, user.role.ToString()),   
-                    new Claim(ClaimTypes.MobilePhone , user.phone.ToString() )
-                }),
-                Expires = DateTime.UtcNow.AddDays(Convert.ToInt32(_config["jwtTokenConfig:AccessTokenExpiration"])),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                new Claim(ClaimTypes.Name, user.username),
+                new Claim(ClaimTypes.Role, Convert.ToString(user.roleID)),
+                new Claim(ClaimTypes.MobilePhone , user.phone),
+                new Claim(ClaimTypes.System , ipAdress)
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+
+            var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["jwtTokenConfig:Secret"]));
+            var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+            var tokeOptions = new JwtSecurityToken(
+                issuer: "https://localhost:5001",
+                audience: "https://localhost:5001",
+                claims: claims,
+                expires: DateTime.UtcNow.AddDays(Convert.ToInt32(_config["jwtTokenConfig:AccessTokenExpiration"])),
+                signingCredentials: signinCredentials
+            );
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
+            return tokenString;
+         
         }
-        private RefreshToken GenerateRefreshToken(string ipAddress)
+        private string GenerateRefreshToken()
         {
             using var rng = RandomNumberGenerator.Create();
             var randomBytes = new byte[64];
             rng.GetBytes(randomBytes);
-            return new RefreshToken
-            {
-                Token = Convert.ToBase64String(randomBytes),
-                Expires = DateTime.UtcNow.AddDays(Convert.ToInt32(_config["jwtTokenConfig:AccessTokenExpiration"])),
-                Created = DateTime.UtcNow,
-                CreatedByIp = ipAddress
-            };
+            return Convert.ToBase64String(randomBytes);
+
         }
 
     }

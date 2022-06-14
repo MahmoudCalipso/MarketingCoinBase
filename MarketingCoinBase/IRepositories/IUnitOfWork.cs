@@ -12,6 +12,7 @@ namespace MarketingCoinBase.IRepositories
         IServeProdsRepository ServeProdsRepository { get; }
         IUserPartnersRepository UserPartnersRepository { get; } 
         IUsersRepository UsersRepository { get; }
+        IRefTokenRepository RefTokenRepository { get; }
         Task<bool> SaveCompletedAsync();
     }
 }

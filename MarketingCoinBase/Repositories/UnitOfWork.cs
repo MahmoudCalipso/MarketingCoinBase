@@ -16,6 +16,7 @@ namespace MarketingCoinBase.Repositories
         private IServeProdsRepository _serveProdsRepository;
         private IUserPartnersRepository _userPartnersRepository;
         private IUsersRepository _usersRepository;
+        private IRefTokenRepository _refTokenRepository;
         public UnitOfWork(CoinBaseDB context)
         {
             _context = context;
@@ -41,6 +42,8 @@ namespace MarketingCoinBase.Repositories
 
         public IUsersRepository UsersRepository =>
             _usersRepository ??= new UsersRepository(_context);
+        public IRefTokenRepository RefTokenRepository => 
+            _refTokenRepository ??= new RefTokenRepository(_context);
 
         public void Dispose()
         {

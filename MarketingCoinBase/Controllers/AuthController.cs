@@ -21,7 +21,7 @@ namespace MarketingCoinBase.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] SignInRequestModel model)
+        public async Task<ActionResult<SignInResponseModel>> Authenticate([FromBody] SignInRequestModel model)
         {
             var response = await _ctr.Authenticate(model, ipAddress());
 
@@ -96,7 +96,7 @@ namespace MarketingCoinBase.Controllers
             else
                 return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
         }
-
+     
         private void setTokenCookie(string token)
         {
             var cookieOptions = new CookieOptions

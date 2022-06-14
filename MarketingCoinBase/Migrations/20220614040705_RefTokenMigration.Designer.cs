@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarketingCoinBase.Migrations
 {
     [DbContext(typeof(CoinBaseDB))]
-    [Migration("20220520000930_AddPatnersMigration")]
-    partial class AddPatnersMigration
+    [Migration("20220614040705_RefTokenMigration")]
+    partial class RefTokenMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -85,6 +85,44 @@ namespace MarketingCoinBase.Migrations
                     b.HasKey("partnerID");
 
                     b.ToTable("Partners");
+                });
+
+            modelBuilder.Entity("MarketingCoinBase.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Revoked")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RevokedByIp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("userID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("userID");
+
+                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("MarketingCoinBase.Models.Roles", b =>
@@ -213,6 +251,17 @@ namespace MarketingCoinBase.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("MarketingCoinBase.Models.RefreshToken", b =>
+                {
+                    b.HasOne("MarketingCoinBase.Models.Users", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("userID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MarketingCoinBase.Models.ServeProds", b =>
                 {
                     b.HasOne("MarketingCoinBase.Models.Partners", "partners")
@@ -282,6 +331,11 @@ namespace MarketingCoinBase.Migrations
             modelBuilder.Entity("MarketingCoinBase.Models.Commissions", b =>
                 {
                     b.Navigation("userPartners");
+                });
+
+            modelBuilder.Entity("MarketingCoinBase.Models.Users", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }
